@@ -44,12 +44,12 @@ def pathExistsDFS(arr, startPosition, endPosition):
             #using the direction array
             a = currentX + dir[i][0]
             b = currentY + dir[i][1]
+
+            print('looking at:' + str(a) + ' ' + str(b))
+
              
             #not blocked and valid
-            if(arr[a][b]!=-1 and arr[a][b]!=1 and a>=0 and b>=0 and a<mazeSize and b<mazeSize):
-
-                print('adding:' + str(a) + ' ' + str(b))
-
+            if(a>=0 and b>=0 and a<mazeSize and b<mazeSize and arr[a][b]!=-1 and arr[a][b]!=1):
             
                 stack.append((a,b))
 
@@ -70,17 +70,18 @@ def makeMatrix(size, probability):
 
 def main():
     mazeSize = 10
-    densityProbability = .4
+    densityProbability = .3
     array = makeMatrix(mazeSize, densityProbability)
 
     print(array)
 
     startPosition = (1,1)
-    endPosition = (5,5)
+    endPosition = (8,8)
 
     pathExists = pathExistsDFS(array, startPosition, endPosition)
 
     print(array)
+
 
     print(pathExists)
 
