@@ -1,6 +1,9 @@
 import numpy as np
 import random
 from DFS import pathExistsDFS
+from matplotlib import pyplot
+from matplotlib import colors
+
 
 def makeMatrix(size, probability):
     arr = np.zeros((size, size))
@@ -13,14 +16,14 @@ def makeMatrix(size, probability):
 
 
 def main():
-    mazeSize = 10
-    densityProbability = .3
+    mazeSize = 20
+    densityProbability = .05
     array = makeMatrix(mazeSize, densityProbability)
 
     print(array)
 
-    startPosition = (1,1)
-    endPosition = (8,8)
+    startPosition = (2,10)
+    endPosition = (18,19)
 
     pathExists = pathExistsDFS(array, startPosition, endPosition)
 
