@@ -1,8 +1,8 @@
 import numpy as np
 import random
-from DFS import pathExistsDFS
 from matplotlib import pyplot
 from matplotlib import colors
+from DFSclass import DFS
 
 
 def makeMatrix(size, probability):
@@ -16,19 +16,18 @@ def makeMatrix(size, probability):
 
 
 def main():
+    
     mazeSize = 20
-    densityProbability = .05
+    densityProbability = .3
     array = makeMatrix(mazeSize, densityProbability)
 
-    print(array)
 
     startPosition = (2,10)
     endPosition = (18,19)
 
-    pathExists = pathExistsDFS(array, startPosition, endPosition)
+    DFStest = DFS(array)
 
-    print(array)
-
+    pathExists = DFStest.pathExistsDFS(startPosition, endPosition, True)
 
     print(pathExists)
 
