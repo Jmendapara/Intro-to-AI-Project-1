@@ -61,6 +61,10 @@ class DFS:
 
             if(showGraph):
                 plt.imshow(arr)
+                plt.tick_params(axis = "x", which = "both", bottom = False, top = False)
+                plt.tick_params(axis = "y", which = "both", left = False, right = False)
+                plt.xticks([])
+                plt.yticks([])
                 plt.pause(0.00000001)
                 plt.clf()
 
