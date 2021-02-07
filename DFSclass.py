@@ -9,7 +9,7 @@ class DFS:
         self.arr = arr
         self.mazeSize = arr.shape[0]
 
-    def pathExistsDFS(self, startPosition, endPosition, showGraph):
+    def pathExists(self, startPosition, endPosition, showGraph):
     
         mazeSize = self.mazeSize
         arr = deepcopy(self.arr)
