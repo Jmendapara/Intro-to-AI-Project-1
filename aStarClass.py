@@ -3,7 +3,7 @@ import random
 import matplotlib.pyplot as plt
 from copy import copy, deepcopy
 import heapq
-
+from utils import Utils
 
 class AStar: 
 
@@ -11,60 +11,29 @@ class AStar:
         self.arr = arr
         self.mazeSize = arr.shape[0]
     
-    def showFinalPlot(self, startPosition, endPosition, path):
-
-        arr = deepcopy(self.arr)
-
-        for i in (range(0,len(path))):
-
-            x = path[i][0]
-
-            y = path[i][1]
-
-            arr[x][y] = 2
-
-        startX = startPosition[0]
-        startY = startPosition[1]
-
-        arr[startX, startY] = 3
-
-        endX = endPosition[0]
-        endY = endPosition[1]
-
-        arr[endX, endY] = 4
-
-        plt.imshow(arr)
-        plt.show()
-
-
-    def getShortestPath(self, startPosition, endPosition, showGraph):
+    
+    def getShortestPath(self, startPosition, endPosition, showPathFinderAnimation):
     
         mazeSize = self.mazeSize
         arr = deepcopy(self.arr)
 
         dir = [(0,1),(1,0),(-1,0),(0,-1)]
 
-        close_set = set()
+        closed = set()
 
-        came_from = {}
+        parent = {}
 
-        gscore = {startPosition:0}
+        startToCurrentCost = {startPosition:0}
 
-        fscore = {startPosition:self.heuristic(startPosition, endPosition)}
+        currentToEndCost = {startPosition:self.heuristic(startPosition, endPosition)}
 
-        oheap = []
+        priorityQueue = []
 
-        heapq.heappush(oheap, (fscore[startPosition], startPosition))
+        heapq.heappush(priorityQueue, (currentToEndCost[startPosition], startPosition))
 
-        startX = startPosition[0]
-        startY = startPosition[1]
+        while priorityQueue:
 
-        arr[startX, startY] = 2
-    
-
-        while oheap:
-
-            current = heapq.heappop(oheap)[1]
+            current = heapq.heappop(priorityQueue)[1]
 
             currentX = current[0]
             currentY = current[1]
@@ -73,67 +42,57 @@ class AStar:
 
             if current == endPosition:
 
-                data = []
+                path = []
 
-                while current in came_from:
+                while current in parent:
 
-                    data.append(current)
+                    path.append(current)
 
-                    current = came_from[current]
+                    current = parent[current]
 
-                data = data + [startPosition]
+                path = path + [startPosition]
 
-                data = data[::-1]
+                path = path[::-1]
 
-                self.showFinalPlot(startPosition, endPosition, data)
+                Utils.showFinalPlot(self.arr, startPosition, endPosition, path)
 
-                return data
+                return path
 
-            close_set.add(current)
+            closed.add(current)
 
             for i, j in dir:
 
                 neighbor = current[0] + i, current[1] + j
 
-                tentative_g_score = gscore[current] + self.heuristic(current, neighbor)
+                tempStartToCurrent = startToCurrentCost[current] + self.heuristic(current, neighbor)
 
-                if 0 <= neighbor[0] < arr.shape[0]:
+                neighborX = neighbor[0]
+                neighborY = neighbor[1]
 
-                    if 0 <= neighbor[1] < arr.shape[1]:                
-
-                        if arr[neighbor[0]][neighbor[1]] == 1:
-
-                            continue
-
-                    else:
-
-                        # array bound y walls
-
+                if ((0 <= neighbor[0] < mazeSize) and (0 <= neighbor[1] < mazeSize)):
+                    if arr[neighbor[0]][neighbor[1]] == 1:
                         continue
 
                 else:
+                    continue
+    
 
-                    # array bound x walls
+                if neighbor in closed and tempStartToCurrent >= startToCurrentCost.get(neighbor, 0):
 
                     continue
     
 
-                if neighbor in close_set and tentative_g_score >= gscore.get(neighbor, 0):
+                if  tempStartToCurrent < startToCurrentCost.get(neighbor, 0) or neighbor not in [i[1]for i in priorityQueue]:
 
-                    continue
-    
+                    parent[neighbor] = current
 
-                if  tentative_g_score < gscore.get(neighbor, 0) or neighbor not in [i[1]for i in oheap]:
+                    startToCurrentCost[neighbor] = tempStartToCurrent
 
-                    came_from[neighbor] = current
+                    currentToEndCost[neighbor] = tempStartToCurrent + self.heuristic(neighbor, endPosition)
 
-                    gscore[neighbor] = tentative_g_score
+                    heapq.heappush(priorityQueue, (currentToEndCost[neighbor], neighbor))
 
-                    fscore[neighbor] = tentative_g_score + self.heuristic(neighbor, endPosition)
-
-                    heapq.heappush(oheap, (fscore[neighbor], neighbor))
-
-            if(showGraph):
+            if(showPathFinderAnimation):
                     plt.imshow(arr)
                     plt.pause(0.01)
                     plt.clf()
@@ -144,22 +103,11 @@ class AStar:
         return np.sqrt((b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2)
 
 
-
-def makeMatrix(size, probability):
-    arr = np.zeros((size, size))
-
-    for x in range(0, size):
-        for y in range(0, size):
-            if (random.random() < probability): 
-                arr[x,y] = 1
-    return arr
-
-
 def main():
     
     mazeSize = 300
-    densityProbability = .4
-    array = makeMatrix(mazeSize, densityProbability)
+    densityProbability = .3
+    array = Utils.makeMatrix(mazeSize, densityProbability)
 
 
     startPosition = (280,200)
@@ -167,7 +115,9 @@ def main():
 
     AStarTest = AStar(array)
 
-    path = AStarTest.getShortestPath(startPosition, endPosition, False)
+    showPathFinderAnimation = False
+
+    path = AStarTest.getShortestPath(startPosition, endPosition, showPathFinderAnimation)
 
     print(path)
 
