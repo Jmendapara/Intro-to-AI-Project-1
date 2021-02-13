@@ -70,7 +70,7 @@ class AStar:
                 neighborY = neighbor[1]
 
                 if ((0 <= neighbor[0] < mazeSize) and (0 <= neighbor[1] < mazeSize)):
-                    if arr[neighbor[0]][neighbor[1]] == 1:
+                    if arr[neighbor[0]][neighbor[1]] == 1 or arr[neighbor[0]][neighbor[1]] == 2:
                         continue
 
                 else:

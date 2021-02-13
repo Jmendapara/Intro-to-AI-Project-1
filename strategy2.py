@@ -7,7 +7,7 @@ from random import randrange
 from aStarClass import AStar
 from utils import Utils
 
-class strategy1: 
+class strategy2: 
 
     def __init__(self, arr, fireRate):
         self.arr = arr
@@ -47,7 +47,7 @@ class strategy1:
         return newMaze
 
 
-    def executeShortestPath(self, path, startPosition, endPosition, showCharacterAnimation):
+    def executeSimulation(self, startPosition, endPosition, showPathFinderAnimation, showCharacterAnimation):
 
         arr = deepcopy(self.arr)
         mazeSize = self.mazeSize
@@ -61,10 +61,21 @@ class strategy1:
 
         arr[randomFireX][randomFireY] = 2
 
-        for step in path:
+        path = self.pathExists(arr, startPosition, endPosition, showPathFinderAnimation, showCharacterAnimation)
+
+        if(path == False):
+            return -1
+
+        while(path != False):
 
             arr = self.updateFireMaze(arr)
 
+            step = path[1]
+
+            if(step == endPosition):
+                print("Peppa made it across the maze without catching on fire!")
+                return True  
+                
             x = step[0]
             y = step[1]
 
@@ -79,13 +90,19 @@ class strategy1:
                 plt.clf()
                 arr[x][y] = 0
 
+            path = self.pathExists(arr, step, endPosition, showPathFinderAnimation, showCharacterAnimation)
+
+            
+        if(path == False): 
+            print("Peppa could not find a path and died!")
+            return False
+
         #Utils.showFinalPlot(arr, startPosition, endPosition, path)
-        print("Peppa made it across the maze without catching on fire!")
-        return True
+        
 
-    def pathExists(self, startPosition, endPosition, showPathFinderAnimation, showCharacterAnimation):
+    def pathExists(self, array, startPosition, endPosition, showPathFinderAnimation, showCharacterAnimation):
 
-        arr = deepcopy(self.arr)
+        arr = deepcopy(array)
         tempAStar = AStar(arr)
 
         path = tempAStar.getShortestPath(startPosition, endPosition, showPathFinderAnimation)
@@ -100,12 +117,13 @@ def main():
     
     mazeSize = 20
     densityProbability = .3
-    #fireRate = .1
+    #fireRate = .03
     showPathFinderAnimation = False
     showCharacterAnimation = False
 
     startPosition = (0,0)
     endPosition = (mazeSize-1,mazeSize-1)
+
 
     #plotting probabaility of peppe reaching goal vs fire rate
 
@@ -123,16 +141,18 @@ def main():
 
             array = Utils.makeMatrix(mazeSize, densityProbability)
 
-            tempMaze = strategy1(array, fireRate)
 
-            path = tempMaze.pathExists(startPosition, endPosition, showPathFinderAnimation, showCharacterAnimation)
-            if (path == False):
-                continue
-            else:
+            tempMaze = strategy2(array, fireRate)
+
+            returnValue = tempMaze.executeSimulation(startPosition, endPosition, showPathFinderAnimation, showCharacterAnimation)
+
+            if(returnValue != -1): #if there exists a path
                 currentTrial += 1
-                survived = tempMaze.executeShortestPath(path, startPosition, endPosition, showCharacterAnimation)
-                if(survived == True):
+                if(returnValue == True):
                     successes += 1
+            else:
+                continue
+        
 
         y.append(successes/totalTrials)
 
@@ -140,7 +160,6 @@ def main():
     plt.plot(fireRates, y)
     plt.ylabel('Probability of Peppa reaching goal')
     plt.xlabel('Fire Rate')
-
     plt.show()
 
 

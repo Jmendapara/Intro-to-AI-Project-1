@@ -36,7 +36,7 @@ class DFS:
             arr[currentX, currentY] = -1
 
             #destination is reached
-            if( sorted(currentPosition) == sorted(endPosition) ):
+            if( sorted(currentPosition) == sorted(endPosition)):
                 return True
 
             #check all four directions
