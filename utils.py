@@ -64,7 +64,7 @@ class Utils:
 
                 totalNeighborsOnFire = 0
 
-                if(arr[x][y] == 0 or arr[x][y] == 3 and arr[x][y] != 1):
+                if(arr[x][y] == 0 and arr[x][y] != 1):
                 
                     for i, j in dir:
 
