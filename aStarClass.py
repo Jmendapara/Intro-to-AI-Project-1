@@ -115,7 +115,7 @@ def main():
 
     AStarTest = AStar(array)
 
-    showPathFinderAnimation = False
+    showPathFinderAnimation = True
 
     path = AStarTest.getShortestPath(startPosition, endPosition, showPathFinderAnimation)
 

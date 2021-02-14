@@ -13,38 +13,6 @@ class strategy2:
         self.arr = arr
         self.mazeSize = arr.shape[0]
         self.fireRate = fireRate
-    
-
-    def updateFireMaze(self, arr):
-
-        newMaze = deepcopy(arr)
-        fireRate = self.fireRate
-        mazeSize = self.mazeSize
-        dir = [(0,1),(1,0),(-1,0),(0,-1)]
-
-        for x in range(0, mazeSize):
-            for y in range(0, mazeSize):
-
-                totalNeighborsOnFire = 0
-
-                if(arr[x][y] == 0 or arr[x][y] == 3 and arr[x][y] != 1):
-                
-                    for i, j in dir:
-
-                        neighbor = x + i, y + j
-                        neighborX = neighbor[0]
-                        neighborY = neighbor[1]
-
-                        if ((0 <= neighborX < mazeSize) and (0 <= neighborY < mazeSize)):
-
-                            if(arr[neighborX][neighborY] == 2):
-                                totalNeighborsOnFire += 1
-
-                    prob = 1 - ((1-fireRate)**totalNeighborsOnFire)
-                    if (random.random() <= prob): 
-                        newMaze[x,y] = 2
-                    
-        return newMaze
 
 
     def executeSimulation(self, startPosition, endPosition, showPathFinderAnimation, showCharacterAnimation):
@@ -52,36 +20,41 @@ class strategy2:
         arr = deepcopy(self.arr)
         mazeSize = self.mazeSize
 
-        randomFireX = randrange(mazeSize)
-        randomFireY = randrange(mazeSize)
+        #Get a random fire start location and verify that a path exists from the start position to the fire 
+        fireToStartPathExists = (-1,-1)
+        while (fireToStartPathExists != False):
+            fireCoordinates = Utils.getRandomFireStartPosition(arr) 
+            fireToStartPathExists = self.getShortestPathExists(arr, startPosition, fireCoordinates, False, False)
+        arr[fireCoordinates[0]][fireCoordinates[1]] = 2
 
-        while arr[randomFireX][randomFireY] != 1 :
-            randomFireX = randrange(mazeSize)
-            randomFireY = randrange(mazeSize)
+        path = self.getShortestPathExists(arr, startPosition, endPosition, showPathFinderAnimation, showCharacterAnimation)
 
-        arr[randomFireX][randomFireY] = 2
-
-        path = self.pathExists(arr, startPosition, endPosition, showPathFinderAnimation, showCharacterAnimation)
-
+        #There does not exist a path from start to end, so return -1
         if(path == False):
             return -1
 
+        #While there is a path from current position to end
         while(path != False):
 
-            arr = self.updateFireMaze(arr)
+            arr = Utils.updateFireMaze(arr, self.fireRate)
 
-            step = path[1]
+            currentPosition = path[0]
 
-            if(step == endPosition):
-                print("Peppa made it across the maze without catching on fire!")
-                return True  
-                
-            x = step[0]
-            y = step[1]
-
-            if(arr[x][y] == 2):
+            #If the agent is currently on a fire block, return False 
+            if(arr[currentPosition[0]][currentPosition[1]] == 2):
                 print("Peppa caught on fire and died :( RIP")
                 return False
+
+            #If we reach the goal, return True
+            if(currentPosition == endPosition):
+                print("Peppa made it across the maze without catching on fire!")
+                return True  
+
+            #Move the agent to the next best coordinate 
+            nextStep = path[1]
+                
+            x = nextStep[0]
+            y = nextStep[1]
 
             if(showCharacterAnimation):
                 arr[x][y] = -1
@@ -90,17 +63,14 @@ class strategy2:
                 plt.clf()
                 arr[x][y] = 0
 
-            path = self.pathExists(arr, step, endPosition, showPathFinderAnimation, showCharacterAnimation)
+            path = self.getShortestPathExists(arr, nextStep, endPosition, showPathFinderAnimation, showCharacterAnimation)
 
-            
-        if(path == False): 
-            print("Peppa could not find a path and died!")
-            return False
+        #There is no path from current position to goal
+        print("Peppa could not find a path and died!")
+        return False
 
-        #Utils.showFinalPlot(arr, startPosition, endPosition, path)
-        
 
-    def pathExists(self, array, startPosition, endPosition, showPathFinderAnimation, showCharacterAnimation):
+    def getShortestPathExists(self, array, startPosition, endPosition, showPathFinderAnimation, showCharacterAnimation):
 
         arr = deepcopy(array)
         tempAStar = AStar(arr)
@@ -124,39 +94,38 @@ def main():
     startPosition = (0,0)
     endPosition = (mazeSize-1,mazeSize-1)
 
-
-    #plotting probabaility of peppe reaching goal vs fire rate
-
+    #Total trials for each fireRate
+    totalTrials = 10
     fireRates = np.linspace(0, 1, 41)
-    y = []
 
-    totalTrials = 20
+    #######################################################################################################################
+
+    #Plotting probabaility of Peppa reaching goal vs fire rate
+    y = []
 
     for fireRate in fireRates:
 
         successes = 0
-        
         currentTrial = 0
+
         while (currentTrial < totalTrials):
 
             array = Utils.makeMatrix(mazeSize, densityProbability)
-
 
             tempMaze = strategy2(array, fireRate)
 
             returnValue = tempMaze.executeSimulation(startPosition, endPosition, showPathFinderAnimation, showCharacterAnimation)
 
-            if(returnValue != -1): #if there exists a path
+            #If there exists a path
+            if(returnValue != -1): 
                 currentTrial += 1
                 if(returnValue == True):
                     successes += 1
             else:
                 continue
         
-
         y.append(successes/totalTrials)
 
- 
     plt.plot(fireRates, y)
     plt.ylabel('Probability of Peppa reaching goal')
     plt.xlabel('Fire Rate')

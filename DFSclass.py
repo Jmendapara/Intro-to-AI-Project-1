@@ -20,7 +20,6 @@ class DFS:
 
         #directions
         dir = np.array([[0,1], [0,-1], [1,0], [-1,0]])
-
         
         #queue 
         stack.append(startPosition)

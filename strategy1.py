@@ -13,61 +13,29 @@ class strategy1:
         self.arr = arr
         self.mazeSize = arr.shape[0]
         self.fireRate = fireRate
-    
-
-    def updateFireMaze(self, arr):
-
-        newMaze = deepcopy(arr)
-        fireRate = self.fireRate
-        mazeSize = self.mazeSize
-        dir = [(0,1),(1,0),(-1,0),(0,-1)]
-
-        for x in range(0, mazeSize):
-            for y in range(0, mazeSize):
-
-                totalNeighborsOnFire = 0
-
-                if(arr[x][y] == 0 or arr[x][y] == 3 and arr[x][y] != 1):
-                
-                    for i, j in dir:
-
-                        neighbor = x + i, y + j
-                        neighborX = neighbor[0]
-                        neighborY = neighbor[1]
-
-                        if ((0 <= neighborX < mazeSize) and (0 <= neighborY < mazeSize)):
-
-                            if(arr[neighborX][neighborY] == 2):
-                                totalNeighborsOnFire += 1
-
-                    prob = 1 - ((1-fireRate)**totalNeighborsOnFire)
-                    if (random.random() <= prob): 
-                        newMaze[x,y] = 2
-                    
-        return newMaze
 
 
-    def executeShortestPath(self, path, startPosition, endPosition, showCharacterAnimation):
+    def executeSimulation(self, path, startPosition, endPosition, showCharacterAnimation):
 
         arr = deepcopy(self.arr)
         mazeSize = self.mazeSize
 
-        randomFireX = randrange(mazeSize)
-        randomFireY = randrange(mazeSize)
-
-        while arr[randomFireX][randomFireY] != 1 :
-            randomFireX = randrange(mazeSize)
-            randomFireY = randrange(mazeSize)
-
-        arr[randomFireX][randomFireY] = 2
+        #Get a random fire start location and verify that a path exists from the start position to the fire 
+        fireToStartPathExists = (-1,-1)
+        while (fireToStartPathExists != False):
+            fireCoordinates = Utils.getRandomFireStartPosition(arr) 
+            fireToStartPathExists = self.getShortestPathExists(startPosition, fireCoordinates, False, False)
+        arr[fireCoordinates[0]][fireCoordinates[1]] = 2
 
         for step in path:
 
-            arr = self.updateFireMaze(arr)
+            arr = Utils.updateFireMaze(arr, self.fireRate)
 
+            #Current position's x and y values
             x = step[0]
             y = step[1]
 
+            #If the current position is on fire, return False 
             if(arr[x][y] == 2):
                 print("Peppa caught on fire and died :( RIP")
                 return False
@@ -83,7 +51,7 @@ class strategy1:
         print("Peppa made it across the maze without catching on fire!")
         return True
 
-    def pathExists(self, startPosition, endPosition, showPathFinderAnimation, showCharacterAnimation):
+    def getShortestPathExists(self, startPosition, endPosition, showPathFinderAnimation, showCharacterAnimation):
 
         arr = deepcopy(self.arr)
         tempAStar = AStar(arr)
@@ -107,12 +75,15 @@ def main():
     startPosition = (0,0)
     endPosition = (mazeSize-1,mazeSize-1)
 
+    #Total trials for each fireRate
+    totalTrials = 50
+    fireRates = np.linspace(0, 1, 11)
+
+    #######################################################################################################################
+    
     #plotting probabaility of peppe reaching goal vs fire rate
 
-    fireRates = np.linspace(0, 1, 41)
     y = []
-
-    totalTrials = 20
 
     for fireRate in fireRates:
 
@@ -125,12 +96,12 @@ def main():
 
             tempMaze = strategy1(array, fireRate)
 
-            path = tempMaze.pathExists(startPosition, endPosition, showPathFinderAnimation, showCharacterAnimation)
+            path = tempMaze.getShortestPathExists(startPosition, endPosition, showPathFinderAnimation, showCharacterAnimation)
             if (path == False):
                 continue
             else:
                 currentTrial += 1
-                survived = tempMaze.executeShortestPath(path, startPosition, endPosition, showCharacterAnimation)
+                survived = tempMaze.executeSimulation(path, startPosition, endPosition, showCharacterAnimation)
                 if(survived == True):
                     successes += 1
 
