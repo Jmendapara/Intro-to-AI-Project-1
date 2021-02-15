@@ -16,32 +16,37 @@ class bfsClass:
         self.arr = arr
         self.mazeSize = arr.shape[0]
  
-    def shortestPath(self, start, end, showPathFinderAnimation):
+    def getshortestPath(self, start, end, showPathFinderAnimation):
 
         arr = deepcopy(self.arr)
         mazeSize = self.mazeSize
 
         queue = collections.deque([[start]])
-        seen = set([start])
+        visited = set([start])
+
+        dir = np.array([[0, 1], [0, -1], [1, 0], [-1, 0]])
 
         while queue:
 
-            path = queue.popleft()
-            x, y = path[-1]
+            currentPosition = queue.popleft()
+            currentX = currentPosition[0]
+            currentY = currentPosition[1]
+            arr[currentX, currentY] = -1
 
-            if(x == end[0] and y == end[1]):
-                
-                Utils.showFinalPlot(self.arr, start, end, path)
-                return path
+            if(currentX == end[0] and currentY == end[1]):
 
-            for x2, y2 in ((x+1,y), (x-1,y), (x,y+1), (x,y-1)):
+                Utils.showFinalPlot(self.arr, start, end, currentPosition)
+                return currentPosition
 
-                if 0 <= x2 < mazeSize and 0 <= y2 < mazeSize and arr[y2][x2] != 1 and (x2, y2) not in seen:
-                    
+            #for i in range(0, 4):
+            for x2, y2 in ((currentX+1,currentY), (currentX-1,currentY), (currentX,currentY+1), (currentX,currentY-1)):
+
+                if 0 <= x2 < mazeSize and 0 <= y2 < mazeSize and arr[y2][x2] != 1 and (x2, y2) not in visited:
+
                     arr[y2,x2] = -1
 
-                    queue.append(path + [(x2, y2)])
-                    seen.add((x2, y2))
+                    queue.append(currentPosition + [(x2, y2)])
+                    visited.add((x2, y2))
 
             if(showPathFinderAnimation):
                 plt.imshow(arr, interpolation='none')
@@ -57,16 +62,16 @@ def main():
     densityProbability = .05
     array = Utils.makeMatrix(mazeSize, densityProbability)
 
-    mat = np.array([[ 0, 0, 0, 0, 0, 1, 0, 1, 1, 1 ],
-                    [ 1, 0, 0, 0, 0, 1, 1, 0, 1, 1 ], 
-                    [ 1, 0, 0, 0, 0, 1, 0, 0, 0, 1 ], 
-                    [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 ], 
-                    [ 1, 1, 0, 0, 0, 0, 0, 0, 1, 0 ], 
-                    [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 ], 
-                    [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 1 ], 
-                    [ 1, 0, 0, 0, 0, 0, 0, 0, 1, 1 ], 
-                    [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 1 ], 
-                    [ 1, 1, 0, 0, 0, 0, 1, 0, 0, 0 ]])
+    # mat = np.array([[ 0, 0, 0, 0, 0, 1, 0, 1, 1, 1 ],
+    #                 [ 1, 0, 0, 0, 0, 1, 1, 0, 1, 1 ],
+    #                 [ 1, 0, 0, 0, 0, 1, 0, 0, 0, 1 ],
+    #                 [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 ],
+    #                 [ 1, 1, 0, 0, 0, 0, 0, 0, 1, 0 ],
+    #                 [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+    #                 [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 1 ],
+    #                 [ 1, 0, 0, 0, 0, 0, 0, 0, 1, 1 ],
+    #                 [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 1 ],
+    #                 [ 1, 1, 0, 0, 0, 0, 1, 0, 0, 0 ]])
 
 
     print(array)
@@ -74,11 +79,11 @@ def main():
     startPosition = (0, 0)
     endPosition = (9, 9)
 
-    BFSTest = bfsClass(mat)
+    BFSTest = bfsClass(array)
 
     showPathFinderAnimation = True
 
-    path = BFSTest.shortestPath(startPosition, endPosition, showPathFinderAnimation)
+    path = BFSTest.getshortestPath(startPosition, endPosition, showPathFinderAnimation)
 
     if path != False:
         print("Shortest Path is", path)

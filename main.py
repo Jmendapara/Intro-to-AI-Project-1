@@ -2,7 +2,8 @@ import numpy as np
 import random
 from matplotlib import pyplot
 from matplotlib import colors
-from dfsClass import DFS
+from DFSclass import DFS
+
 
 
 def makeMatrix(size, probability):
@@ -25,11 +26,11 @@ def main():
     startPosition = (2,10)
     endPosition = (18,19)
 
-    DFStest = DFS(array)
+    #DFStest = DFS(array)
 
-    pathExists = DFStest.pathExists(startPosition, endPosition, True)
+    #pathExists = DFStest.pathExists(startPosition, endPosition, True)
 
-    print(pathExists)
+    #print(pathExists)
 
 
 if __name__ == "__main__":
