@@ -11,7 +11,7 @@ class bfsClass:
         self.arr = arr
         self.mazeSize = arr.shape[0]
  
-    def shortestPath(self, startPosition, endPosition, showPathFinderAnimation):
+    def getshortestPath(self, startPosition, endPosition, showPathFinderAnimation):
 
         arr = deepcopy(self.arr)
         mazeSize = self.mazeSize
