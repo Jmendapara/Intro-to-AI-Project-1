@@ -1,14 +1,9 @@
-# Python program to find the shortest
-# path between a given source cell 
-# to a destination cell.
 import numpy as np
-
 import collections
 from collections import deque
 from utils import Utils
 from copy import copy, deepcopy
 import matplotlib.pyplot as plt
-
 
 class bfsClass:
 
@@ -16,32 +11,41 @@ class bfsClass:
         self.arr = arr
         self.mazeSize = arr.shape[0]
  
-    def shortestPath(self, start, end, showPathFinderAnimation):
+    def shortestPath(self, startPosition, endPosition, showPathFinderAnimation):
 
         arr = deepcopy(self.arr)
         mazeSize = self.mazeSize
 
-        queue = collections.deque([[start]])
-        seen = set([start])
+        if(arr[startPosition[0]][startPosition[1]] == 1):
+            return False
+
+        queue = collections.deque([[startPosition]])
+        visitedSet = set([startPosition])
+
+        dir = [(0,1),(1,0),(-1,0),(0,-1)]
 
         while queue:
 
-            path = queue.popleft()
-            x, y = path[-1]
+            currentPath = queue.popleft()
+            x, y = currentPath[-1]
 
-            if(x == end[0] and y == end[1]):
+            if(x == endPosition[0] and y == endPosition[1]):
                 
-                Utils.showFinalPlot(self.arr, start, end, path)
-                return path
+                Utils.showFinalPlot(self.arr, startPosition, endPosition, currentPath)
+                return currentPath
 
-            for x2, y2 in ((x+1,y), (x-1,y), (x,y+1), (x,y-1)):
+            for i, j in dir:
 
-                if 0 <= x2 < mazeSize and 0 <= y2 < mazeSize and arr[y2][x2] != 1 and (x2, y2) not in seen:
+                neighborX = x + i
+                neighborY = y + j
+
+                if 0 <= neighborX < mazeSize and 0 <= neighborY < mazeSize: 
+                    if arr[neighborX][neighborY] != 1 and (neighborX, neighborY) not in visitedSet:
                     
-                    arr[y2,x2] = -1
+                        arr[neighborX,neighborY] = -1
 
-                    queue.append(path + [(x2, y2)])
-                    seen.add((x2, y2))
+                        queue.append(currentPath + [(neighborX, neighborY)])
+                        visitedSet.add((neighborX, neighborY))
 
             if(showPathFinderAnimation):
                 plt.imshow(arr, interpolation='none')
@@ -54,27 +58,14 @@ class bfsClass:
 def main():
 
     mazeSize = 10
-    densityProbability = .05
+    densityProbability = .3
     array = Utils.makeMatrix(mazeSize, densityProbability)
-
-    mat = np.array([[ 0, 0, 0, 0, 0, 1, 0, 1, 1, 1 ],
-                    [ 1, 0, 0, 0, 0, 1, 1, 0, 1, 1 ], 
-                    [ 1, 0, 0, 0, 0, 1, 0, 0, 0, 1 ], 
-                    [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 ], 
-                    [ 1, 1, 0, 0, 0, 0, 0, 0, 1, 0 ], 
-                    [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 ], 
-                    [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 1 ], 
-                    [ 1, 0, 0, 0, 0, 0, 0, 0, 1, 1 ], 
-                    [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 1 ], 
-                    [ 1, 1, 0, 0, 0, 0, 1, 0, 0, 0 ]])
-
-
     print(array)
 
     startPosition = (0, 0)
-    endPosition = (9, 9)
+    endPosition = (mazeSize-1, mazeSize-1)
 
-    BFSTest = bfsClass(mat)
+    BFSTest = bfsClass(array)
 
     showPathFinderAnimation = True
 
@@ -86,4 +77,5 @@ def main():
         print("Shortest path doesn't exist")
 
 
-main()
+if __name__ == "__main__":
+    main()
