@@ -69,7 +69,7 @@ def main():
 
     showPathFinderAnimation = True
 
-    path = BFSTest.shortestPath(startPosition, endPosition, showPathFinderAnimation)
+    path = BFSTest.getshortestPath(startPosition, endPosition, showPathFinderAnimation)
 
     if path != False:
         print("Shortest Path is", path)
