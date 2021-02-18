@@ -81,7 +81,7 @@ def main():
 
     #######################################################################################################################
     
-    #plotting probabaility of peppe reaching goal vs fire rate
+    #plotting probabaility of agent reaching goal vs fire rate
 
     y = []
 
@@ -108,9 +108,13 @@ def main():
         y.append(successes/totalTrials)
 
  
+    print('Total probability = ' + str(np.sum(y)))
+    print(y)
+
     plt.plot(fireRates, y)
-    plt.ylabel('Probability of Peppa reaching goal')
-    plt.xlabel('Fire Rate')
+    plt.ylabel('Average  Strategy  Success  Rate')
+    plt.xlabel('Flammability Rate')
+    plt.title('Strategy 1')
 
     plt.show()
 

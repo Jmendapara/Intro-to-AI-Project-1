@@ -2,8 +2,10 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 from copy import copy, deepcopy
+from utils import Utils
+import time
 
-class DFS: 
+class dfsClass: 
 
     def __init__(self, arr):
         self.arr = arr
@@ -56,3 +58,60 @@ class DFS:
                 plt.clf()
 
         return False
+
+def main():
+
+    mazeSize = 100
+    densityProbability = .3
+
+    startPosition = (0, 0)
+    endPosition = (mazeSize-1, mazeSize-1)
+
+    showPathFinderAnimation = False
+    
+    obstacleDensities = np.linspace(0, 1, 11)
+
+    totalTrials = 50
+
+    #######################################################################################################################
+
+    #plotting probabaility of path existing vs. density 
+    y = []
+
+    for obstacleDensity in obstacleDensities:
+
+        successes = 0
+        currentTrial = 0
+
+        while (currentTrial < totalTrials):
+
+            array = Utils.makeMatrix(mazeSize, obstacleDensity)
+
+            dfsTest = dfsClass(array)
+
+            returnValue = dfsTest.pathExists(startPosition, endPosition, showPathFinderAnimation)
+
+            if(returnValue == True):
+                successes += 1
+                currentTrial += 1
+            else:
+                currentTrial += 1
+
+            print('Trial = ' + str(currentTrial))
+        
+        y.append(successes/totalTrials)
+
+   
+    print('Total probability = ' + str(np.sum(y)))
+    print(y)
+
+    plt.plot(obstacleDensities, y)
+    plt.ylabel('Probability the S can be reached from G')
+    plt.xlabel('Obstacle Density')
+    plt.title('DFS (Obstacle Density vs. Probability of Path Existing)')
+    plt.show()
+
+
+
+if __name__ == "__main__":
+    main()

@@ -4,6 +4,7 @@ from collections import deque
 from utils import Utils
 from copy import copy, deepcopy
 import matplotlib.pyplot as plt
+import time
 
 class bfsClass:
 
@@ -17,7 +18,7 @@ class bfsClass:
         mazeSize = self.mazeSize
 
         if(arr[startPosition[0]][startPosition[1]] == 1):
-            return False
+            return False, arr
 
         queue = collections.deque([[startPosition]])
         visitedSet = set([startPosition])
@@ -31,8 +32,8 @@ class bfsClass:
 
             if(x == endPosition[0] and y == endPosition[1]):
                 
-                Utils.showFinalPlot(self.arr, startPosition, endPosition, currentPath)
-                return currentPath
+                #Utils.showFinalPlot(self.arr, startPosition, endPosition, currentPath)
+                return currentPath, arr
 
             for i, j in dir:
 
@@ -51,30 +52,76 @@ class bfsClass:
                 plt.imshow(arr, interpolation='none')
                 plt.pause(0.00001)
     
-        return False
+        return False, arr
 
 
 # Driver code
 def main():
 
-    mazeSize = 10
+    mazeSize = 20
     densityProbability = .3
-    array = Utils.makeMatrix(mazeSize, densityProbability)
-    print(array)
 
     startPosition = (0, 0)
     endPosition = (mazeSize-1, mazeSize-1)
 
-    BFSTest = bfsClass(array)
-
     showPathFinderAnimation = True
 
-    path = BFSTest.getshortestPath(startPosition, endPosition, showPathFinderAnimation)
+    #start_time = time.time()
 
-    if path != False:
-        print("Shortest Path is", path)
-    else:
-        print("Shortest path doesn't exist")
+
+
+    mazeSize = 100
+    densityProbability = .3
+
+    startPosition = (0, 0)
+    endPosition = (mazeSize-1, mazeSize-1)
+
+    showPathFinderAnimation = False
+    
+    obstacleDensities = np.linspace(0, 1, 11)
+
+    totalTrials = 50
+
+    #######################################################################################################################
+
+    #plotting probabaility of path existing vs. density 
+    y = []
+
+    for obstacleDensity in obstacleDensities:
+
+        visitedBlocks = 0
+        currentTrial = 0
+
+        while (currentTrial < totalTrials):
+
+            array = Utils.makeMatrix(mazeSize, obstacleDensity)
+
+            bfsTest = bfsClass(array)
+
+            path, arr = bfsTest.getshortestPath(startPosition, endPosition, showPathFinderAnimation)
+
+            print(arr)
+
+            #print("--- %s seconds ---" % (time.time() - start_time))
+            for k in range(bfsTest.mazeSize):
+                for u in range(bfsTest.mazeSize):
+                    if(arr[k][u] == -1):
+                        visitedBlocks += 1
+            print('Trial = ' + str(currentTrial))
+            currentTrial += 1
+
+        
+        y.append(visitedBlocks/totalTrials)
+
+   
+    print('Total Nodes = ' + str(np.sum(y)))
+    print(y)
+
+    plt.plot(obstacleDensities, y)
+    plt.ylabel('Average Number of Nodes Visited')
+    plt.xlabel('Obstacle Density')
+    plt.title('BFS (Obstacle Density vs. # of Nodes Visited)')
+    plt.show()
 
 
 if __name__ == "__main__":

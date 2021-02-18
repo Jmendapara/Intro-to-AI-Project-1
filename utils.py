@@ -13,7 +13,7 @@ class Utils:
     #0 = open 
     #1 = blocks
     #2 = fire
-    #3 = searched
+    #3 = future possible fire
 
 
     @staticmethod

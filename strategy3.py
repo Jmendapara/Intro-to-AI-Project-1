@@ -6,13 +6,99 @@ import heapq
 from random import randrange
 from aStarClass import AStar
 from utils import Utils
+from scipy.spatial import distance
 
-class strategy2: 
+class strategy3: 
 
     def __init__(self, arr, fireRate):
         self.arr = arr
         self.mazeSize = arr.shape[0]
         self.fireRate = fireRate
+
+
+    #Update fire maze with fire and new predictions    
+    def updateFireMaze(self, arr, fireRate, currentPosition, endPosition, onFireSet):
+
+        newMaze = deepcopy(arr)
+        mazeSize = arr.shape[0]
+        dir = [(0,1),(1,0),(-1,0),(0,-1)]
+
+        #"Expand" the fire
+        for x in range(mazeSize):
+            for y in range(mazeSize):
+
+                totalNeighborsOnFire = 0
+
+                if((arr[x][y] == 0 and arr[x][y] != 1) or arr[x][y] == 3):
+                
+                    for i, j in dir:
+
+                        neighbor = x + i, y + j
+                        neighborX = neighbor[0]
+                        neighborY = neighbor[1]
+
+                        if ((0 <= neighborX < mazeSize) and (0 <= neighborY < mazeSize)):
+
+                            if(arr[neighborX][neighborY] == 2):
+                                totalNeighborsOnFire += 1
+
+                    prob = 1 - ((1-fireRate)**totalNeighborsOnFire)
+                    if (random.random() <= prob): 
+                        newMaze[x,y] = 2
+                        onFireSet.add((x,y))
+                    
+        path = False
+            
+        #Prediction distance. Large prediction distance will force agent to be further from the fire 
+        futurePredictionDistance = self.getfirePredictionDistance()
+
+        #Update predictions of where the fire will be in the next few updates
+        while (path == False):
+
+            for k in range(self.mazeSize):
+                for u in range(self.mazeSize):
+                    if(newMaze[k][u] == 3):
+                        newMaze[k][u] = 0
+
+            if (futurePredictionDistance == 0):
+                return newMaze
+
+            #For each location of a fire block, create prediction blocks of how the fire will expand
+            for fireCoordinates in onFireSet:
+                
+                        point = [fireCoordinates[0],fireCoordinates[1]]
+                        valid_points = []
+                        for x in range(self.mazeSize):
+                            for y in range(self.mazeSize):
+
+                                if ( (abs(x - point[0]) + abs(y - point[1])) <= futurePredictionDistance ):
+                                    valid_points.append((x,y))
+
+                        for coordinate in valid_points:
+                            x = coordinate[0]
+                            y = coordinate[1]
+                            if(newMaze[x][y] != 1 and newMaze[x][y] != 2):
+                                newMaze[x][y] = 3
+
+            path = self.getShortestPathExists(newMaze, currentPosition, endPosition, False, False)
+            futurePredictionDistance -= 1
+
+        return newMaze
+
+
+    #Get a prediction distance based on the fireRate
+    def getfirePredictionDistance(self):
+
+        if (self.fireRate < .2):
+            return 1
+
+        if (self.fireRate < .5):
+            return 2
+
+        if (self.fireRate < 1):
+            return 3
+
+        return 4
 
 
     def executeSimulation(self, startPosition, endPosition, showPathFinderAnimation, showCharacterAnimation):
@@ -33,12 +119,14 @@ class strategy2:
         if(path == False):
             return -1
 
+        onFireSet = set()
+
         #While there is a path from current position to end
         while(path != False):
 
-            arr = Utils.updateFireMaze(arr, self.fireRate)
-
             currentPosition = path[0]
+
+            arr = self.updateFireMaze(arr, self.fireRate, currentPosition, endPosition, onFireSet)
 
             #If the agent is currently on a fire block, return False 
             if(arr[currentPosition[0]][currentPosition[1]] == 2):
@@ -81,13 +169,14 @@ class strategy2:
         else:
             return False
             print('Path does not exist from start to end')
+        
 
 
 def main():
     
     mazeSize = 20
     densityProbability = .3
-    #fireRate = .03
+    fireRate = .3
     showPathFinderAnimation = False
     showCharacterAnimation = False
 
@@ -96,9 +185,8 @@ def main():
 
     #Total trials for each fireRate
     totalTrials = 50
-
     fireRates = np.linspace(0, 1, 11)
-    
+
     #######################################################################################################################
 
     #plotting probabaility of agent reaching goal vs fire rate
@@ -113,7 +201,7 @@ def main():
 
             array = Utils.makeMatrix(mazeSize, densityProbability)
 
-            tempMaze = strategy2(array, fireRate)
+            tempMaze = strategy3(array, fireRate)
 
             returnValue = tempMaze.executeSimulation(startPosition, endPosition, showPathFinderAnimation, showCharacterAnimation)
 
@@ -127,14 +215,13 @@ def main():
         
         y.append(successes/totalTrials)
 
-   
     print('Total probability = ' + str(np.sum(y)))
     print(y)
 
     plt.plot(fireRates, y)
     plt.ylabel('Probability of agent reaching goal')
     plt.xlabel('Flammability Rate')
-    plt.title('Strategy 2')
+    plt.title('Strategy 3')
     plt.show()
 
 
