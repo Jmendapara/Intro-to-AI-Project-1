@@ -21,16 +21,16 @@ class AStar:
 
         dir = [(0,1),(1,0),(-1,0),(0,-1)]
 
-        closed = set()
+        #visisted set
+        visitedSet = set()
 
+        #Keep track of parents to find shortest path
         parent = {}
-
         startToCurrentCost = {startPosition:0}
-
         currentToEndCost = {startPosition:self.heuristic(startPosition, endPosition)}
 
+        #Create priority queue
         priorityQueue = []
-
         heapq.heappush(priorityQueue, (currentToEndCost[startPosition], startPosition))
 
         while priorityQueue:
@@ -42,27 +42,24 @@ class AStar:
 
             arr[currentX, currentY] = -1
 
+            #If we reach the end
             if current == endPosition:
-
+                #Get every single parent to get the final shortest path and reverse the list
                 path = []
-
                 while current in parent:
-
                     path.append(current)
-
                     current = parent[current]
-
                 path = path + [startPosition]
-
                 path = path[::-1]
 
-                Utils.showFinalPlot(self.arr, startPosition, endPosition, path)
+                #Utils.showFinalPlot(self.arr, startPosition, endPosition, path)
                 if(returnArray == True):
                     return path, arr
                 return path
 
-            closed.add(current)
+            visitedSet.add(current)
 
+            #For all the neighbors
             for i, j in dir:
 
                 neighbor = current[0] + i, current[1] + j
@@ -74,26 +71,25 @@ class AStar:
 
                 #If index is out of bounds, do not do anything
                 if ((0 <= neighbor[0] < mazeSize) and (0 <= neighbor[1] < mazeSize)):
+
+                    #If on fire or wall or predicted fire block
                     if arr[neighbor[0]][neighbor[1]] == 1 or arr[neighbor[0]][neighbor[1]] == 2 or arr[neighbor[0]][neighbor[1]] == 3:
                         continue
 
                 else:
                     continue
     
-
-                if neighbor in closed and tempStartToCurrent >= startToCurrentCost.get(neighbor, 0):
-
+                #If the neightbor is already visited, dont worry about it
+                if neighbor in visitedSet and tempStartToCurrent >= startToCurrentCost.get(neighbor, 0):
                     continue
-    
 
-                if  tempStartToCurrent < startToCurrentCost.get(neighbor, 0) or neighbor not in [i[1]for i in priorityQueue]:
-
+                if  ((neighbor not in [i[1]for i in priorityQueue]) or (tempStartToCurrent < startToCurrentCost.get(neighbor, 0))):
+                    #Assign parrent
                     parent[neighbor] = current
-
                     startToCurrentCost[neighbor] = tempStartToCurrent
-
+                    #Calculate heuristic 
                     currentToEndCost[neighbor] = tempStartToCurrent + self.heuristic(neighbor, endPosition)
-
+                    #Add to queue
                     heapq.heappush(priorityQueue, (currentToEndCost[neighbor], neighbor))
 
             if(showPathFinderAnimation):
@@ -105,6 +101,7 @@ class AStar:
             return False, arr
         return False
 
+    #Calculae distance 
     def heuristic(self, a, b):
         return np.sqrt((b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2)
 
