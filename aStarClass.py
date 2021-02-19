@@ -5,6 +5,7 @@ from copy import copy, deepcopy
 import heapq
 from utils import Utils
 from random import randrange
+import time
 
 class AStar: 
 
@@ -162,6 +163,34 @@ def graph():
     plt.title('A* (Obstacle Density vs. # of Nodes Visited)')
     plt.show()
 
+def largestMatrixMinute():
+
+    mazeSize = 700
+    densityProbability = .3
+
+    startPosition = (0, 0)
+    endPosition = (mazeSize-1, mazeSize-1)
+
+    showPathFinderAnimation = False
+
+    array = Utils.makeMatrix(mazeSize, densityProbability)
+
+    aStarTest = AStar(array)
+
+    start_time = time.time()
+
+    if(array[0][0] == 1 or array[mazeSize-1][mazeSize-1] == 1):
+        return 
+
+    returnValue = aStarTest.getShortestPath(startPosition, endPosition, showPathFinderAnimation, False)
+
+    print("A* with maze size of " + str(mazeSize) +" x "+ str(mazeSize) + " --- %s seconds ---" % (time.time() - start_time))
+
+    if(returnValue != False):
+        print("Path Exists: True")
+
 
 if __name__ == "__main__":
+
+    #largestMatrixMinute()
     graph()
