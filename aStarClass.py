@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from copy import copy, deepcopy
 import heapq
 from utils import Utils
+from random import randrange
 
 class AStar: 
 
@@ -12,7 +13,7 @@ class AStar:
         self.mazeSize = arr.shape[0]
     
     
-    def getShortestPath(self, startPosition, endPosition, showPathFinderAnimation):
+    def getShortestPath(self, startPosition, endPosition, showPathFinderAnimation, returnArray):
     
         mazeSize = self.mazeSize
         arr = deepcopy(self.arr)
@@ -54,8 +55,9 @@ class AStar:
 
                 path = path[::-1]
 
-                #Utils.showFinalPlot(self.arr, startPosition, endPosition, path)
-
+                #Utils.showFinalPlot(self.arr, startPosition, endPosition, currentPath)
+                if(returnArray == True):
+                    return path, arr
                 return path
 
             closed.add(current)
@@ -69,6 +71,7 @@ class AStar:
                 neighborX = neighbor[0]
                 neighborY = neighbor[1]
 
+                #If index is out of bounds, do not do anything
                 if ((0 <= neighbor[0] < mazeSize) and (0 <= neighbor[1] < mazeSize)):
                     if arr[neighbor[0]][neighbor[1]] == 1 or arr[neighbor[0]][neighbor[1]] == 2 or arr[neighbor[0]][neighbor[1]] == 3:
                         continue
@@ -97,30 +100,68 @@ class AStar:
                     plt.pause(0.01)
                     plt.clf()
 
+        if(returnArray == True):
+            return False, arr
         return False
 
     def heuristic(self, a, b):
         return np.sqrt((b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2)
 
 
-def main():
+def graph():
     
-    mazeSize = 300
+    #PARAMETERS YOU CAN CHANGE
+
+    mazeSize = 100
     densityProbability = .3
-    array = Utils.makeMatrix(mazeSize, densityProbability)
 
+    showPathFinderAnimation = False
+    
+    obstacleDensities = np.linspace(0, 1, 11)
 
-    startPosition = (280,200)
-    endPosition = (145,0)
+    totalTrials = 50
 
-    AStarTest = AStar(array)
+    #######################################################################################################################
 
-    showPathFinderAnimation = True
+    #plotting probabaility of path existing vs. density 
+    y = []
 
-    path = AStarTest.getShortestPath(startPosition, endPosition, showPathFinderAnimation)
+    for obstacleDensity in obstacleDensities:
 
-    print(path)
+        visitedBlocks = 0
+        currentTrial = 0
+
+        while (currentTrial < totalTrials):
+
+            array = Utils.makeMatrix(mazeSize, obstacleDensity)
+
+            aStarTest = AStar(array)
+
+            startPosition = (randrange(mazeSize), randrange(mazeSize))
+            endPosition = (randrange(mazeSize), randrange(mazeSize))
+
+            path, arr = aStarTest.getShortestPath(startPosition, endPosition, showPathFinderAnimation, True)
+
+            for k in range(aStarTest.mazeSize):
+                for u in range(aStarTest.mazeSize):
+                    if(arr[k][u] == -1):
+                        visitedBlocks += 1
+            print('Trial = ' + str(currentTrial))
+            currentTrial += 1
+
+        
+        y.append(visitedBlocks/totalTrials)
+
+   
+    print('Total Nodes = ' + str(np.sum(y)))
+    print(y)
+
+    plt.plot(obstacleDensities, y)
+    plt.ylabel('Average Number of Nodes Visited')
+    plt.xlabel('Obstacle Density')
+    plt.title('A* (Obstacle Density vs. # of Nodes Visited)')
+    plt.show()
 
 
 if __name__ == "__main__":
-    main()
+    graph()

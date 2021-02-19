@@ -59,7 +59,9 @@ class dfsClass:
 
         return False
 
-def main():
+def graph():
+
+    #PARAMETERS YOU CAN CHANGE
 
     mazeSize = 100
     densityProbability = .3
@@ -73,9 +75,9 @@ def main():
 
     totalTrials = 50
 
+    #plotting probabaility of path existing vs. obstacle density 
     #######################################################################################################################
-
-    #plotting probabaility of path existing vs. density 
+    
     y = []
 
     for obstacleDensity in obstacleDensities:
@@ -97,7 +99,7 @@ def main():
             else:
                 currentTrial += 1
 
-            print('Trial = ' + str(currentTrial))
+            print('Trial = ' + str(currentTrial) + " Obstacle Density = "+ str(obstacleDensity))
         
         y.append(successes/totalTrials)
 
@@ -111,7 +113,31 @@ def main():
     plt.title('DFS (Obstacle Density vs. Probability of Path Existing)')
     plt.show()
 
+def largestMatrixMinute():
+    mazeSize = 3075
+    densityProbability = .3
+
+    startPosition = (0, 0)
+    endPosition = (mazeSize-1, mazeSize-1)
+
+    showPathFinderAnimation = False
+
+    array = Utils.makeMatrix(mazeSize, densityProbability)
+
+    dfsTest = dfsClass(array)
+
+    start_time = time.time()
+
+    if(array[0][0] == 1 or array[mazeSize-1][mazeSize-1] == 1):
+        return 
+
+    returnValue = dfsTest.pathExists(startPosition, endPosition, showPathFinderAnimation)
+
+    print("DFS with maze size of " + str(mazeSize) +" x "+ str(mazeSize) + " --- %s seconds ---" % (time.time() - start_time))
+
+    print("Path Exists: " + str(returnValue))
 
 
 if __name__ == "__main__":
-    main()
+    #largestMatrixMinute()
+    graph()

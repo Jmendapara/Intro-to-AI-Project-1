@@ -56,7 +56,7 @@ class strategy1:
         arr = deepcopy(self.arr)
         tempAStar = AStar(arr)
 
-        path = tempAStar.getShortestPath(startPosition, endPosition, showPathFinderAnimation)
+        path = tempAStar.getShortestPath(startPosition, endPosition, showPathFinderAnimation, False)
         if(path != False):
             return path
         else:
@@ -64,7 +64,9 @@ class strategy1:
             print('Path does not exist from start to end')
 
 
-def main():
+def graph():
+
+    #PARAMETERS YOU CAN CHANGE
     
     mazeSize = 20
     densityProbability = .3
@@ -79,10 +81,10 @@ def main():
     totalTrials = 50
     fireRates = np.linspace(0, 1, 11)
 
+
+    #Plotting probabaility of agent reaching goal vs fire rate
     #######################################################################################################################
     
-    #plotting probabaility of agent reaching goal vs fire rate
-
     y = []
 
     for fireRate in fireRates:
@@ -92,11 +94,14 @@ def main():
         currentTrial = 0
         while (currentTrial < totalTrials):
 
+
             array = Utils.makeMatrix(mazeSize, densityProbability)
+
 
             tempMaze = strategy1(array, fireRate)
 
             path = tempMaze.getShortestPathExists(startPosition, endPosition, showPathFinderAnimation, showCharacterAnimation)
+
             if (path == False):
                 continue
             else:
@@ -104,10 +109,11 @@ def main():
                 survived = tempMaze.executeSimulation(path, startPosition, endPosition, showCharacterAnimation)
                 if(survived == True):
                     successes += 1
+            
+            print('Trial = ' + str(currentTrial) + " Flammability Rate = "+ str(fireRate))
 
         y.append(successes/totalTrials)
 
- 
     print('Total probability = ' + str(np.sum(y)))
     print(y)
 
@@ -120,4 +126,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    graph()

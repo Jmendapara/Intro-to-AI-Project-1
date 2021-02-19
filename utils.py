@@ -15,7 +15,7 @@ class Utils:
     #2 = fire
     #3 = future possible fire
 
-
+    #Shows the final path
     @staticmethod
     def showFinalPlot(arr, startPosition, endPosition, path):
 
@@ -42,6 +42,7 @@ class Utils:
         plt.imshow(arr)
         plt.show()
 
+    #Make a random matrix
     @staticmethod
     def makeMatrix(size, probability):
         arr = np.zeros((size, size))
@@ -52,6 +53,7 @@ class Utils:
                     arr[x,y] = 1
         return arr
 
+    #"Expand" the fire
     @staticmethod
     def updateFireMaze(arr, fireRate):
 

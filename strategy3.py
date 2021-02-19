@@ -130,12 +130,12 @@ class strategy3:
 
             #If the agent is currently on a fire block, return False 
             if(arr[currentPosition[0]][currentPosition[1]] == 2):
-                print("Peppa caught on fire and died :( RIP")
+                #print("Peppa caught on fire and died :( RIP")
                 return False
 
             #If we reach the goal, return True
             if(currentPosition == endPosition):
-                print("Peppa made it across the maze without catching on fire!")
+                #print("Peppa made it across the maze without catching on fire!")
                 return True  
 
             #Move the agent to the next best coordinate 
@@ -154,7 +154,7 @@ class strategy3:
             path = self.getShortestPathExists(arr, nextStep, endPosition, showPathFinderAnimation, showCharacterAnimation)
 
         #There is no path from current position to goal
-        print("Peppa could not find a path and died!")
+        #print("Peppa could not find a path and died!")
         return False
 
 
@@ -163,7 +163,7 @@ class strategy3:
         arr = deepcopy(array)
         tempAStar = AStar(arr)
 
-        path = tempAStar.getShortestPath(startPosition, endPosition, showPathFinderAnimation)
+        path = tempAStar.getShortestPath(startPosition, endPosition, showPathFinderAnimation, False)
         if(path != False):
             return path
         else:
@@ -172,7 +172,9 @@ class strategy3:
         
 
 
-def main():
+def graph():
+
+    #PARAMETERS YOU CAN CHANGE
     
     mazeSize = 20
     densityProbability = .3
@@ -187,9 +189,9 @@ def main():
     totalTrials = 50
     fireRates = np.linspace(0, 1, 11)
 
+    #Plotting probabaility of agent reaching goal vs fire rate
     #######################################################################################################################
 
-    #plotting probabaility of agent reaching goal vs fire rate
     y = []
 
     for fireRate in fireRates:
@@ -213,6 +215,8 @@ def main():
             else:
                 continue
         
+            print('Trial = ' + str(currentTrial) + " Flammability Rate = "+ str(fireRate))
+
         y.append(successes/totalTrials)
 
     print('Total probability = ' + str(np.sum(y)))
@@ -226,4 +230,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    graph()
