@@ -56,7 +56,7 @@ class AStar:
 
                 path = path[::-1]
 
-                #Utils.showFinalPlot(self.arr, startPosition, endPosition, currentPath)
+                Utils.showFinalPlot(self.arr, startPosition, endPosition, path)
                 if(returnArray == True):
                     return path, arr
                 return path
